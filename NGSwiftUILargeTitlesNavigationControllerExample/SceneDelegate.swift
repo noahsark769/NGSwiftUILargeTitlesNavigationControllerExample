@@ -9,6 +9,51 @@
 import UIKit
 import SwiftUI
 
+struct SmallTitlesView: View {
+    var body: some View {
+        Text("This has a small title")
+            .navigationBarTitle("Small", displayMode: .inline)
+    }
+}   
+
+final class FirstViewController: UIViewController {
+    var callback: () -> Void = { }
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+
+        self.title = "Large title"
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        let button = UIButton()
+        button.setTitle("Push", for: .normal)
+        button.setTitleColor(.red, for: .normal)
+        button.addTarget(self, action: #selector(didTap), for: .touchUpInside)
+
+        self.view.backgroundColor = .white
+
+        button.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(button)
+        self.view.centerYAnchor.constraint(equalTo: button.centerYAnchor).isActive = true
+        self.view.centerXAnchor.constraint(equalTo: button.centerXAnchor).isActive = true
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        self.navigationController?.navigationBar.prefersLargeTitles = true
+    }
+
+    @objc private func didTap() {
+        self.callback()
+    }
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -19,13 +64,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
-        // Create the SwiftUI view that provides the window contents.
-        let contentView = ContentView()
-
         // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = UIHostingController(rootView: contentView)
+            let first = FirstViewController()
+            let navController = UINavigationController(rootViewController: first)
+            window.rootViewController = navController
+            first.callback = {
+                let controller = UIHostingController(rootView: SmallTitlesView())
+
+                // Comment in these next two lines to fix the issue
+//                controller.navigationItem.largeTitleDisplayMode = .never
+//                controller.navigationItem.title = "Small"
+                navController.pushViewController(controller, animated: true)
+            }
             self.window = window
             window.makeKeyAndVisible()
         }
