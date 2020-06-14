@@ -1,0 +1,2 @@
+# NGSwiftUILargeTitlesNavigationControllerExample
+Demonstrates an issue with SwiftUI and UINavigationController
